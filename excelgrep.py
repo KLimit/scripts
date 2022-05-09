@@ -26,16 +26,13 @@ def excelgrep(filename, pattern, onlymatching, delimiter):
         else:
             output += [stringrow(row, delimiter)]
     if matches:
-        filename = str(filename)
         header = stringrow(list(sheet.rows)[0], delimiter)
-        printoutput(filename, header, output, delimiter, onlymatching)
+        printoutput(header, output, onlymatching)
     return matches
 
 
-def printoutput(filename, header, output, delimiter, onlymatching):
-    """Print filename, header, then the matches."""
-    filenamefill = '' if onlymatching else delimiter*(header.count(delimiter))
-    print(filename + filenamefill)
+def printoutput(header, output,onlymatching):
+    """Print header and the matches."""
     if not onlymatching:
         print(header)
     for row in output:
@@ -71,6 +68,7 @@ def main():
     args = pser.parse_args()
     for path in sorted(pathlib.Path('.').rglob(args.filepattern)):
         try:
+            sys.stderr.write(str(path) + '\n')
             matches = excelgrep(
                 path,
                 args.greppattern,
