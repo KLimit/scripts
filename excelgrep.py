@@ -15,15 +15,37 @@ def excelgrep(filename, pattern, onlymatching, delimiter):
     book = openpyxl.load_workbook(filename)
     sheet = book.active
     matches = 0
-    print(str(filename) + delimiter*(sheet.max_column-1))
+    output = []
     for row in sheet.rows:
-        for cell in row:
-            search = re.search(pattern, str(cell.value), re.I)
-            if search:
-                line = cell.value if onlymatching else stringrow(row, delimiter)
-                print(line)
-                matches += 1
+        searches = scanrow(row, pattern)
+        if not any(searches):
+            continue
+        matches += len([match for match in searches if match])
+        if onlymatching:
+            output += [cell.value for cell, match in zip(row, searches) if match]
+        else:
+            output += [stringrow(row, delimiter)]
+    if matches:
+        filename = str(filename)
+        header = stringrow(list(sheet.rows)[0], delimiter)
+        printoutput(filename, header, output, delimiter, onlymatching)
     return matches
+
+
+def printoutput(filename, header, output, delimiter, onlymatching):
+    """Print filename, header, then the matches."""
+    filenamefill = '' if onlymatching else delimiter*(header.count(delimiter))
+    print(filename + filenamefill)
+    if not onlymatching:
+        print(header)
+    for row in output:
+        print(row)
+
+
+def scanrow(excelrow, pattern):
+    """Grep an individual row and return it if there is at least one match."""
+    searches = [re.search(pattern, str(cell.value), re.I) for cell in excelrow]
+    return searches
 
 
 def stringrow(row, delimiter=','):
@@ -42,8 +64,8 @@ def fmtcell(cell, delimiter):
 def main():
     """Grep through each given workbook for given pattern."""
     pser = argparse.ArgumentParser()
-    pser.add_argument('filepattern')
     pser.add_argument('greppattern')
+    pser.add_argument('filepattern')
     pser.add_argument('-o', '--only-matching', action='store_true')
     pser.add_argument('-d', '--delimiter', default=',')
     args = pser.parse_args()
