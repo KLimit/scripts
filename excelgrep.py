@@ -10,7 +10,7 @@ import openpyxl
 import zipfile
 
 
-def excelgrep(filename, pattern, onlymatching, delimiter):
+def excelgrep(filename, pattern, onlymatching, noheader, delimiter):
     """Search through each row of the given Excel file (first workbook)."""
     book = openpyxl.load_workbook(filename)
     sheet = book.active
@@ -27,13 +27,13 @@ def excelgrep(filename, pattern, onlymatching, delimiter):
             output += [stringrow(row, delimiter)]
     if matches:
         header = stringrow(list(sheet.rows)[0], delimiter)
-        printoutput(header, output, onlymatching)
+        printoutput(header, output, onlymatching, noheader)
     return matches
 
 
-def printoutput(header, output,onlymatching):
+def printoutput(header, output, onlymatching, noheader):
     """Print header and the matches."""
-    if not onlymatching:
+    if (not onlymatching) or (not noheader):
         print(header)
     for row in output:
         print(row)
@@ -65,6 +65,7 @@ def main():
     pser.add_argument('filepattern')
     pser.add_argument('-o', '--only-matching', action='store_true')
     pser.add_argument('-d', '--delimiter', default=',')
+    pser.add_argument('--no-header', action='store_true')
     args = pser.parse_args()
     for path in sorted(pathlib.Path('.').rglob(args.filepattern)):
         try:
@@ -73,6 +74,7 @@ def main():
                 path,
                 args.greppattern,
                 args.only_matching,
+                args.no_header,
                 args.delimiter,
             )
         except zipfile.BadZipFile:
