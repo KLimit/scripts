@@ -5,6 +5,6 @@ git rev-parse --abbrev-ref HEAD | find /v "" | findstr /r /c:"^master$" > NUL & 
 	break
 ) ELSE (
 	ECHO I am on the main branch
-	ipython -i -c "import sys; import PCU_IO as pcuio; sys.argv = ['']; self = pcuio.TestControl(); self.helper.run_DUT_cmd('chassis output off'); self.helper.run_DUT_cmd('acc output off')"
+	ipython -i -c "import sys; import PCU_IO as pcuio; sys.argv = ['']; self = pcuio.TestControl(PCUrev='C'); self.helper.run_DUT_cmd('chassis output off'); self.helper.run_DUT_cmd('acc output off'); mtb = self.board;"
 )
 exit
