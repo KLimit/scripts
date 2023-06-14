@@ -34,13 +34,26 @@ def diff(old, new, columns):
     new: filename of new
     columns: list containing one or two columns; if two, second item is for new
     """
+    oldname, newname = old, new
     old, new = load(old), load(new)
     if len(columns) == 1:
         columns = columns*2
     old, new = _getcolumn(old, columns[0]), _getcolumn(new, columns[1])
     old, new = sorted(old), sorted(new)
-    _diff = difflib.unified_diff(old, new, n=1, lineterm='')
-    for line in _diff:
+    _diff = list(difflib.unified_diff(
+        old,
+        new,
+        fromfile=oldname,
+        tofile=newname,
+        n=0,
+        lineterm='',
+    ))
+    header, _diff = _diff[:2], _diff[2:]
+    skipcontrol = re.compile('^@@.*@@$')
+    _diff = [line for line in _diff if not skipcontrol.match(line)]
+    for line in header:
+        print(line)
+    for line in sorted(_diff):
         print(line)
 
 
@@ -55,6 +68,10 @@ def main(argv=None):
         help='Key for columns to compare. Can give only one to use for both.'
     )
     args = pser.parse_args(argv)
-    if len(args.columns > 2):
+    if len(args.columns) > 2:
         raise IndexError('You can only specify two keys maximum.')
     diff(**vars(args))
+
+
+if __name__ == '__main__':
+    main()
