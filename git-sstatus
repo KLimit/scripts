@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+import re
+from shutil import which
+from subprocess import run
+
+
+GIT = which('git')
+
+
+
+def symbol_to_description(symb):
+    easy = {
+        'D ': 'deleted from index',
+        ' R': 'renamed in work tree',
+        ' C': 'copied in work tree',
+        'DD': 'unmerged, both deleted',
+        'AU': 'unmerged, added by us',
+        'UD': 'unmerged, deleted by them',
+        'UA': 'unmerged, added by them',
+        'DU': 'unmerged, deleted by us',
+        'AA': 'unmerged, both added',
+        'UU': 'unmerged, both modified',
+        '??': 'untracked',
+        '!!': 'ignored',
+    }
+    if symb in easy:
+        return easy[symb]
+    other = (
+        (re.compile(' [AMD]'), 'not updated'),
+        (re.compile('M[ MTD]'), 'updated in index'),
+        (re.compile('T[ MTD]'), 'type changed in index'),
+        (re.compile('A[ MTD]'), 'added to index'),
+        (re.compile('R[ MTD]'), 'renamed in index'),
+        (re.compile('C[ MTD]'), 'copied in index'),
+        (re.compile('[MTARC] ') , 'index and work tree matches'),
+        (re.compile('[ MTARC]M'), 'work tree changed since index'),
+        (re.compile('[ MTARC]T'), 'type changed in work tree since index'),
+        (re.compile('[ MTARC]D'), 'deleted in work tree'),
+    )
+    for pttn, msg in other:
+        if pttn.match(symb):
+            return msg
+    return 'undefined symbol'
+
+
+def main(summary, plain, untracked_exts):
+    if not plain:
+        return prettymain(untracked_exts)
+    stat = run(f'{GIT} status --porcelain', capture_output=True, text=True)
+    stat = [(line[:2], line[3:]) for line in stat.stdout.rstrip().split('\n')]
+    stat = [(xy, path, symbol_to_description(xy)) for xy, path in stat]
+    if summary == 'all':
+        summary = ('untracked', 'ignored')
+    elif summary == 'never':
+        summary = tuple()
+    else: 
+        summary = (summary,)
+    summarized = {state: [] for state in summary}
+    outp = []
+    for xy, path, desc in stat:
+        if desc in summarized:
+            summarized[desc].append((xy, path, desc))
+        else:
+            outp.append((xy, path, desc))
+    for xy, path, desc in outp:
+        print(f'{path} {desc}')
+    for state, summ in summarized.items():
+        print(f'{len(summ)} {state} files')
+
+
+def prettymain(untracked_exts):
+    """Quick and dirty 'fold' of the untracked files."""
+    prevcolor = run(
+        f'{GIT} config --local status.color',
+        capture_output=True,
+        text=True
+    ).stdout.strip() or 'auto'  # like to default to auto if not already set
+    run(f'{GIT} config color.ui always')
+    stat = run(f'{GIT} status', capture_output=True, text=True)
+    run(f'{GIT} config --local status.color {prevcolor}')
+    lines = stat.stdout.split('\n')
+    while lines:
+        line = lines.pop(0)
+        if line == 'Untracked files:':
+            print(line)  # Untracked files:
+            print(lines.pop(0))  # (use "git add <file>..." to ...)
+            untracked = []
+            while (line := lines.pop(0)):
+                untracked.append(line)
+            exts = [ut.split('.')[-1] for ut in untracked]
+            if not untracked_exts:
+                print(f'\t{len(untracked)} untracked files')
+            elif len(set(exts)) == 1:
+                print(f'\t{len(untracked)} untracked files ({exts[0]})')
+            else:
+                from collections import Counter
+                for ext, num in Counter(exts).items():
+                    print(f'\t{num} untracked {ext} files')
+        print(line)
+
+
+def mainargs(argv=None):
+    import argparse
+    pser = argparse.ArgumentParser()
+    pser.add_argument(
+        '-s',
+        '--summary',
+        nargs='?',
+        const='all',
+        choices=('all', 'untracked', 'ignored', 'never'),
+        default='untracked'
+    )
+    pser.add_argument(
+        '-p',
+        '--plain',
+        action='store_true',
+    )
+    pser.add_argument(
+        '-t',
+        '--untracked-exts',
+        action='store_true',
+    )
+
+    args = pser.parse_args(argv)
+    return vars(args)
+
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main(**mainargs()))
