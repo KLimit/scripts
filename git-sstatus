@@ -75,7 +75,7 @@ def prettymain(untracked_exts):
         capture_output=True,
         text=True
     ).stdout.strip() or 'auto'  # like to default to auto if not already set
-    run(f'{GIT} config color.ui always')
+    run(f'{GIT} config status.color always')
     stat = run(f'{GIT} status', capture_output=True, text=True)
     run(f'{GIT} config --local status.color {prevcolor}')
     lines = stat.stdout.split('\n')
