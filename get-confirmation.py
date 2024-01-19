@@ -4,7 +4,13 @@ import sys
 pser = argparse.ArgumentParser()
 pser.add_argument('title', nargs='?')
 pser.add_argument('query', nargs='?')
+pser.add_argument('-y', '--yes', action='store_true', help='return w/ exit code 0')
+pser.add_argument('-n', '--no', action='store_true', help='return w/ nonzero exit code (overrides --yes)')
 args = pser.parse_args()
+if args.no:
+    sys.exit(2)
+elif args.yes:
+    sys.exit(0)
 title = f'{args.title}:' if args.title else ''
 query = f' {args.query} ' if args.query else ''
 options = 'yN'
