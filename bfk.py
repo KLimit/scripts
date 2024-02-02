@@ -1,14 +1,31 @@
+import argparse
 from collections import defaultdict
-from itertools import dropwhile
 import sys
+import time
+
+
 def cleaninstructions(str):
     chars = tuple('><+-.[]')
     return ''.join(c for c in str if c in chars)
-def main(instructions):
-    data = defaultdict(int)
+
+
+class Memory(dict):
+    bits = 8
+    def __getitem__(self, key):
+        if key not in self:
+            self[key] = 0
+        return super().__getitem__(key)
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value % 2**self.bits)
+
+
+def main(instructions, verbose=False):
+    data = Memory()
     pdata = 0
     pinstr = 0
     instructions = cleaninstructions(instructions)
+    if verbose:
+        print(instructions, file=sys.stderr)
     while pinstr < len(instructions):
         instruction = instructions[pinstr]
         match instruction:
@@ -31,7 +48,13 @@ def main(instructions):
                 if data[pdata]:
                     # jump back
                     pinstr = findmatch(pinstr, instructions)
+        if verbose:
+            print('\r', file=sys.stderr, end='')
+            print(' '*len(instructions), file=sys.stderr, end='')
+            print('\r', file=sys.stderr, end='')
+            print(' '*pinstr+'^', file=sys.stderr, end='')
         pinstr += 1
+    sys.stdout.flush()
 
 def findmatch(position, instructions):
     startbracket = instructions[position]
@@ -55,4 +78,8 @@ def findmatch(position, instructions):
             return index
 
 if __name__ == "__main__":
-    main(' '.join(sys.argv[1:]))
+    pser = argparse.ArgumentParser()
+    pser.add_argument('-v', '--verbose', action='store_true')
+    pser.add_argument('instructions', nargs='+')
+    args = pser.parse_args()
+    main(''.join(args.instructions), verbose=args.verbose)
