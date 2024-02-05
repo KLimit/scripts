@@ -4,11 +4,6 @@ import sys
 import time
 
 
-def cleaninstructions(str):
-    chars = tuple('><+-.[]')
-    return ''.join(c for c in str if c in chars)
-
-
 class Memory(dict):
     bits = 8
     def __getitem__(self, key):
@@ -23,7 +18,7 @@ def main(instructions, verbose=False):
     data = Memory()
     pdata = 0
     pinstr = 0
-    instructions = cleaninstructions(instructions)
+    instructions = ''.join(c for c in instructions if c in '<>+-.,[]')
     if verbose:
         print(instructions, file=sys.stderr)
     while pinstr < len(instructions):
