@@ -85,7 +85,8 @@ class WallpaperWatcher:
         path = Path(path).absolute()
         files = self.glob(path, '*') if path.is_dir() else [path]
         for file in files:
-            if link_path := self.path_is_candidate(file) and not self.dry_run:
+            link_path = self.path_is_candidate(file)
+            if link_path and not self.dry_run:
                 os.symlink(file, link_path)
     main = run
 
