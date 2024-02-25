@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 from collections import namedtuple
+from dataclasses import dataclass
 import os
 from pathlib import Path
 import re
@@ -31,7 +32,7 @@ def is_image(file_description):
 def link_file(filename, target_dir, force=False):
     src = Path(filename).absolute()
     target = Path(target_dir) / src.name
-    if not target.exists() or force
+    if not target.exists() or force:
         os.symlink(src, target)
 
 
