@@ -31,13 +31,6 @@ def is_image(file_description):
     return 'image'.casefold() in file_description.casefold()
 
 
-def link_file(filename, target_dir, force=False):
-    src = Path(filename).absolute()
-    target = Path(target_dir) / src.name
-    if not target.exists() or force:
-        os.symlink(src, target)
-
-
 @dataclass
 class WallpaperWatcher:
     wallpaper_folder: str
@@ -95,42 +88,6 @@ class WallpaperWatcher:
             if link_path := self.path_is_candidate(file) and not self.dry_run:
                 os.symlink(file, link_path)
     main = run
-
-
-def main(
-    file,
-    wallpaper_folder,
-    min_aspect=1,
-    max_aspect=999,
-    dry_run=False,
-    verbose=False,
-    recurse=False,
-    force=False,
-):
-    file = Path(file).absolute()
-    wallpaper_folder = Path(wallpaper_folder).absolute()
-    if file.is_dir():
-        globber = file.rglob if recurse else file.glob
-        files = [
-            path
-            for path in globber('*')
-            if path.is_file()
-            and not path.is_relative_to(wallpaper_folder)
-        ]
-    else:
-        files = [file]
-    for file in files:
-        description = magic.from_file(str(file))
-        if not is_image(description):
-            continue
-        aspect = aspect_ratio(description)
-        if min_aspect < aspect < max_aspect:
-            # if (not target.exists() or force) and not dry_run:
-            if not dry_run:
-                link_file(file, wallpaper_folder, force)
-            if verbose:
-                print(f'{file}: {aspect}')
-    return 0
 
 
 def mainargs(argv=None):
