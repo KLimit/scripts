@@ -81,9 +81,7 @@ def input_editable(prompt, prefill=''):
 
 
 def validate_path(path):
-    path_body_list = path.split('/')
-    path_body_list.pop()
-    path_body = '/'.join(path_body_list)
+    path_body, filename = os.path.split(path)
     is_path = os.path.isdir(path_body)
     if not is_path:
         return False
