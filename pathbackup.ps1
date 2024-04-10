@@ -26,7 +26,9 @@ function dump-backup {
 	}
 	# remove any items older than the max
 	remove-item "$oldfolder/$($oldword*$maxold)*"
-	copy-item "$dumpdest" "$oldfolder/$oldword"
+	if (test-path $dumpdest) {
+		copy-item "$dumpdest" "$oldfolder/$oldword"
+	}
 	write-output "$todump" > "$dumpdest"
 }
 make-folder "$backuppath"
