@@ -6,7 +6,7 @@ def get_confirmation(title, query, options='yN', prompt=' '):
     # prompt = ' '.join([title, query, f'({options})', prompt])
     fullprompt = f'{title}: ' if title else ''
     if query:
-        fullprompt += 'query '
+        fullprompt += f'{query} '
     if options:
         fullprompt += f'({options})'
     prompt = fullprompt + prompt

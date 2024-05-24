@@ -67,6 +67,7 @@ def main():
     pser.add_argument('-d', '--delimiter', default=',')
     pser.add_argument('--no-header', action='store_true')
     args = pser.parse_args()
+    matches = 0
     for path in sorted(pathlib.Path('.').rglob(args.filepattern)):
         try:
             sys.stderr.write(str(path) + '\n')
