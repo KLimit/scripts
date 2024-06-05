@@ -22,6 +22,7 @@ def main(path_a, path_b, recurse, thorough, hash, csv):
             for path in diff
             if (csv_differ(path_a/path, path_b/path) if path.suffix.casefold() == '.csv' else True)
         ]
+    diff.sort()
     print(f'a: {path_a} != b: {path_b}')
     for file in a_only:
         print(f'{"a"/file} not in b')
