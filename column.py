@@ -6,19 +6,18 @@ import sys
 
 
 Mode = enum.Enum('Mode', ['COLUMNS', 'ROWS', 'TABLE'])
-
-
 DEFAULT_COLUMNS = 80
 
-def main(file, columns=80, separator=' ', mode=Mode.COLUMNS):
+
+def main(file, columns=80, separator='  ', mode=Mode.COLUMNS):
     if columns == 'auto':
         try:
             columns, _ = get_terminal_size(file)
         except OSError:
             columns = DEFAULT_COLUMNS
     columns = int(columns)
-    lines = list(line.strip() for line in file)
-    longest = max(map(len, lines))
+    items = list(line.strip() for line in file)
+    longest = max(map(len, items))
     return 0
 
 
