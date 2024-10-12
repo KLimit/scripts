@@ -15,6 +15,7 @@ def main(file, columns: int|str, separator: str, mode: Mode, just: Justify):
             columns, _ = get_terminal_size(file)
         except OSError:
             columns = DEFAULT_COLUMNS
+    # "columns" will refer to character cells
     columns = int(columns)
     try:
         just = just.value
