@@ -10,6 +10,10 @@ import logging
 from pathlib import Path
 import sys
 
+try:
+    from py_units import unitter, Quantity
+except Importerror:
+    print('could not import py_units', file=sys.stderr)
 
 # Python 3 (and above?)
 if sys.version_info.major != 2:
