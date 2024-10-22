@@ -24,6 +24,11 @@ if sys.version_info.major != 2:
 def parallel(*rs):
     return 1/sum(1/r for r in rs)
 
+def div(rtop, rbot, *, vs=1):
+    return vs * rbot / (rtop + rbot)
+
+def inv(x):
+    return 1 / x
 
 def ed(prompt='> ', end='.', transform=None):
     """Minimal ed-like line editor. Stop with '.' on a single line."""
