@@ -6,6 +6,7 @@ from __future__ import (
     print_function,
     unicode_literals,
 )
+import functools
 import logging
 from pathlib import Path
 import sys
@@ -34,3 +35,13 @@ def ed(prompt='> ', end='.', transform=None):
     while (line:=input(prompt)) != end:
         lines.append(transform(line))
     return lines
+
+def eager(fn=None, /, *, type=list):
+    def wrapper(fn):
+        @functools.wraps(fn)
+        def wrapped(*args, **kwargs):
+            return type(fn(*args, **kwargs))
+        return wrapped
+    if fn is None:
+        return wrapper
+    return wrapper(fn)
