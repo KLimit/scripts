@@ -75,6 +75,14 @@ def findmatch(position, instructions):
 if __name__ == "__main__":
     pser = argparse.ArgumentParser()
     pser.add_argument('-v', '--verbose', action='store_true')
-    pser.add_argument('instructions', nargs='+')
+    pser.add_argument('-f', '--file')
+    pser.add_argument('instructions', nargs='*')
     args = pser.parse_args()
-    main(''.join(args.instructions), verbose=args.verbose)
+    if args.instructions and args.file:
+        pser.exit('Cannot use both a file and command-line program')
+    elif args.instructions:
+        instructions = ''.join(args.instructions)
+    else:
+        with open(args.file) as f:
+            instructions = f.read()
+    main(instructions, verbose=args.verbose)
