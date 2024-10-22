@@ -50,3 +50,11 @@ def eager(fn=None, /, *, type=list):
     if fn is None:
         return wrapper
     return wrapper(fn)
+
+class ContextGroup:
+    def __init__(self, *cms):
+        self.cms = cms
+    def __enter__(self):
+        return tuple(cms.__enter__() for cms in self.cms)
+    def __exit__(self, *args, **kwargs):
+        return tuple(cms.__exit__(*args, **kwargs) for cms in self.cms)
