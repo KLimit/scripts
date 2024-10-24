@@ -17,6 +17,17 @@ def ruler(end=-1, interval=10, offset=0, tick='|', line='.'):
     # if end - len(ruler_)
     return ruler_
 
+def main(argv=None):
+    import argparse
+    pser = argparse.ArgumentParser()
+    pser.add_argument('-n', '--end', default=-1, type=int)
+    pser.add_argument('-i', '--interval', default=10, type=int)
+    pser.add_argument('-o', '--offset', default=0, type=int)
+    pser.add_argument('-t', '--tick', default='|')
+    pser.add_argument('-l', '--line', default='.')
+    args = pser.parse_args(argv)
+    print(ruler(**vars(args)))
+
 if __name__ == '__main__':
     # TODO: add command line interface
-    print(ruler())
+    main()

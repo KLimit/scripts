@@ -1,5 +1,4 @@
 """Someday line editor in python."""
-from io import StringIO
 
 
 class Editor:
