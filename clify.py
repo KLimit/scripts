@@ -9,11 +9,7 @@ import inspect
 
 def clify(fn):
     def cliwrapped(argv=None):
-        name = fn.__name__
-        # use a more convenient name if needed
-        if name == 'main':
-            name = fn.__module__
-        pser = ArgumentParser(prog=name)
+        pser = ArgumentParser()
         sig = inspect.signature(fn)
         for param in sig.parameters.values():
             names, pser_kwargs = param_to_arg(param)
