@@ -44,7 +44,7 @@ def param_to_arg(param: inspect.Parameter) -> (tuple, dict):
             kwargs['default'] = param.default
     if param.annotation is not param.empty:
         kwargs['type'] = param.annotation
-    elif has_default:
+    elif has_default and param.default is not None:
         # assume type to be type of the default value if not explicit
         # (when default value is given)
         kwargs['type'] = type(param.default)
