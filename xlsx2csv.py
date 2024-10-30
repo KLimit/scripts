@@ -21,7 +21,11 @@ def sliding_window(iterable, n):
 
 
 @clify.clify
-def main(filename, sheet=1, outfile=None, rows=None, filtersize=3):
+def main(filename, sheet=1, outfile=None, rows:int=None, filtersize=3):
+    try:
+        sheet = int(sheet)
+    except ValueError:
+        pass
     wb = sxl.Workbook(filename)
     ws = wb.sheets[sheet]
     if outfile is None:
