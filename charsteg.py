@@ -1,6 +1,11 @@
 """quick and dirty text steganography"""
-import string
 import random
+import string
+import sys
+
+import clify
+
+
 class RandSource:
     def __init__(self, charset):
         self.charset = charset
@@ -9,17 +14,24 @@ class RandSource:
     def __next__(self):
         return random.choice(self.charset)
 
+
 class CharSource(RandSource):
     def __init__(self, *exclude):
         charset = string.ascii_letters + string.digits + string.punctuation
         for ch in exclude:
             charset = charset.replace(ch, '')
         self.charset = charset
+
+
 def toalpha(num, upper=True):
     offset = ord('A' if upper else 'a')
     return chr(num%26 + offset)
+
+
 def to_ord(ch):
     return ord(ch.upper()) - ord('A')
+
+
 def stegan_encode(
     plaintext,
     character,
@@ -55,6 +67,8 @@ def stegan_encode(
         steg += '\n'
     # don't want trailing newline
     return steg[:-1]
+
+
 def stegan_decode(stegtext: str, character):
     lines = stegtext.splitlines()
     decoded = []
@@ -74,33 +88,53 @@ def stegan_decode(stegtext: str, character):
         decoded.append(line)
     return ''.join(decoded)
 
-def main():
-    import sys
-    if len(sys.argv) == 1:
-        print('usage: charsteg encode|decode character', file=sys.stderr)
-        print('text is read from stdin', file=sys.stderr)
-        sys.exit()
-    if len(sys.argv) not in (3, 4):
-        print('must provide "encode"/"decode" and encoding character', file=sys.stderr)
-        sys.exit(1)
-    text = sys.stdin.read()
-    if sys.argv[1] == 'encode':
-        func = stegan_encode
-    elif sys.argv[1] == 'decode':
-        func = stegan_decode
+
+@clify.clify
+def main(action: str, character: str, input=None, seed:int=None):
+    if seed is not None:
+        random.seed(seed)
+    action = action.casefold()
+    match action:
+        case 'encode':
+            func = stegan_encode
+        case 'decode':
+            func = stegan_decode
+    if input is None:
+        input = sys.stdin
     else:
-        print(f'{sys.argv[1]} is not a valid option', file=sys.stderr)
-        sys.exit(2)
-    char = sys.argv[2]
-    if len(char) != 1:
-        print('"character" must be a single character', file=sys.stderr)
-        sys.exit(3)
-    try:
-        random.seed(sys.argv[3])
-    except IndexError:
-        pass
-    print(func(text, char))
+        input = open(input)
+    with input as inp:
+        text = inp.read()
+    print(func(text, character))
 
 
-if __name__ == '__main__':
-    main()
+# def main():
+#     import sys
+#     if len(sys.argv) == 1:
+#         print('usage: charsteg encode|decode character', file=sys.stderr)
+#         print('text is read from stdin', file=sys.stderr)
+#         sys.exit()
+#     if len(sys.argv) not in (3, 4):
+#         print('must provide "encode"/"decode" and encoding character', file=sys.stderr)
+#         sys.exit(1)
+#     text = sys.stdin.read()
+#     if sys.argv[1] == 'encode':
+#         func = stegan_encode
+#     elif sys.argv[1] == 'decode':
+#         func = stegan_decode
+#     else:
+#         print(f'{sys.argv[1]} is not a valid option', file=sys.stderr)
+#         sys.exit(2)
+#     char = sys.argv[2]
+#     if len(char) != 1:
+#         print('"character" must be a single character', file=sys.stderr)
+#         sys.exit(3)
+#     try:
+#         random.seed(sys.argv[3])
+#     except IndexError:
+#         pass
+#     print(func(text, char))
+#
+#
+# if __name__ == '__main__':
+#     main()
