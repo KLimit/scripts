@@ -13,7 +13,7 @@ import sys
 
 try:
     from py_units import unitter, Quantity
-except Importerror:
+except ImportError:
     print('could not import py_units', file=sys.stderr)
 
 # Python 3 (and above?)
