@@ -114,7 +114,7 @@ class Game:
             try:
                 key = stdscr.getkey()
             except KeyboardInterrupt:
-                break
+                return
             match key:
                 case 'h' | 'KEY_LEFT':
                     self.puzzle.move_window(0, -1)
@@ -129,11 +129,12 @@ class Game:
                 case 'u':
                     self.puzzle.undo()
                 case 'q':
-                    break
+                    return
             self.draw_puzzle(stdscr, debug=False)
             stdscr.refresh()
         if self.puzzle.is_complete():
-            stdscr.addstr(1, 1, self.statusbar + '; BOARD COMPLETE!')
+            stdscr.addstr(0, 0, self.statusbar + '; BOARD COMPLETE! (any key to quit)')
+        stdscr.getkey()
 
     message = 'make all cells unique'
     @property
