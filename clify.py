@@ -2,23 +2,28 @@
 from argparse import ArgumentParser
 import atexit
 import inspect
-
-# from IPython.core.debugger import set_trace as breakpoint
-# from IPython import embed
+import sys
 
 
-def clify(fn):
+def clify(fn, stdin_var: str = None, stdin_type=sys.stdin):
     def cliwrapped(argv=None):
         pser = ArgumentParser()
         sig = inspect.signature(fn)
         for param in sig.parameters.values():
             names, pser_kwargs = param_to_arg(param)
+            if stdin_var in names:
+                continue
             pser.add_argument(*names, **pser_kwargs)
         try:
             args = pser.parse_args(argv)
         except SystemExit:
             return
-        return fn(**vars(args))
+        kwargs = vars(args)
+        if stdin_var is not None:
+            if stdin_type is not sys.stdin:
+                stdin = stdin_type(sys.stdin.read())
+            kwargs[stdin_var] = stdin
+        return fn(**kwargs)
     # in lieu of monkeypatching the module, call at exit
     if fn.__module__ == '__main__':
         # calling_frame = inspect.currentframe().f_back
