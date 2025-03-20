@@ -8,9 +8,10 @@ do
 	# maybe there's a shebang saying it should be python3 syntax
 	if (head -n1 "$toch" | grep -q python3)
 	then
-		py=python3
+		# shady mix of windows' py.exe and shell
+		py='py -3'
 	else
-		py=python
+		py='py -2'
 	fi
 	if eval "git show ':$toch' | $py -m pyflakes"
 	then
