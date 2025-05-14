@@ -8,6 +8,7 @@ from __future__ import (
 )
 import functools
 import logging
+import math
 from pathlib import Path
 import sys
 
@@ -29,6 +30,12 @@ def div(rtop, rbot, *, vs=1):
 
 def inv(x):
     return 1 / x
+
+def filt(a, b):
+    """Calculate the missing value for a first-order RC filter."""
+    # f = 1 / (tau * r * c)
+    # x = 1 / (tau * a * b)
+    return 1/(math.tau * a * b)
 
 def ed(prompt='> ', end='.', transform=None):
     """Minimal ed-like line editor. Stop with '.' on a single line."""
