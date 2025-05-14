@@ -20,16 +20,26 @@ function dump-backup {
 	$dumpdest = "$dumproot/$dumpdest"
 	make-folder "$dumproot"
 	make-folder "$oldfolder"
-	gci $oldfolder | sort-object -descending {$_.name.length} |foreach {
-		# increment the backups by one
-		move-item "$oldfolder/$($_.name)" "$oldfolder/$($_.name)$oldword"
+	$tmpfile = new-item (new-guid)
+	write-output "$todump" > $tmpfile
+	$newhash = get-filehash $tmpfile
+	$currenthash = get-filehash $dumpdest
+	if ($newhash.hash -ne $currenthash.hash) {
+		gci $oldfolder | sort-object -descending {$_.name.length} |foreach {
+			# increment the backups by one
+			move-item "$oldfolder/$($_.name)" "$oldfolder/$($_.name)$oldword"
+		}
+		# remove any items older than the max
+		remove-item "$oldfolder/$($oldword*$maxold)*"
+		if (test-path $dumpdest) {
+			copy-item "$dumpdest" "$oldfolder/$oldword"
+		}
+		move-item $tmpfile $dumpdest -force
+		#write-output "$todump" > "$dumpdest"
+	} else {
+		remove-item $tmpfile
+		(get-item $dumpdest).lastwritetime = get-date
 	}
-	# remove any items older than the max
-	remove-item "$oldfolder/$($oldword*$maxold)*"
-	if (test-path $dumpdest) {
-		copy-item "$dumpdest" "$oldfolder/$oldword"
-	}
-	write-output "$todump" > "$dumpdest"
 }
 make-folder "$backuppath"
 dump-backup -todump $userpath -dumproot "$backuppath" -dumpdest "userpath" -oldfolder "userold"
