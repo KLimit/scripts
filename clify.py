@@ -1,18 +1,19 @@
 #!/usr/bin/env python3
 from argparse import ArgumentParser
 import atexit
+import functools
 import inspect
 
 # from IPython.core.debugger import set_trace as breakpoint
 # from IPython import embed
 
 
-def clify(fn):
+def _clify(fn, /, *, infer_type=True):
     def cliwrapped(argv=None):
         pser = ArgumentParser()
         sig = inspect.signature(fn)
         for param in sig.parameters.values():
-            names, pser_kwargs = param_to_arg(param)
+            names, pser_kwargs = param_to_arg(param, infer_type=infer_type)
             pser.add_argument(*names, **pser_kwargs)
         try:
             args = pser.parse_args(argv)
@@ -21,15 +22,19 @@ def clify(fn):
         return fn(**vars(args))
     # in lieu of monkeypatching the module, call at exit
     if fn.__module__ == '__main__':
-        # calling_frame = inspect.currentframe().f_back
-        # print(calling_frame)
-        # breakpoint()
-        # embed()
         atexit.register(cliwrapped)
     return fn
 
+def clify(fn=None, /, *, infer_type=True):
+    # copy pattern from dataclasses.py
+    if fn is None:
+        # called with parens
+        return functools.partial(_clify, infer_type=infer_type)
+    else:
+        return _clify(fn)
 
-def param_to_arg(param: inspect.Parameter) -> (tuple, dict):
+
+def param_to_arg(param: inspect.Parameter, infer_type=True) -> (tuple, dict):
     kwargs = {}
     if (has_default := param.default is not param.empty):
         kwargs['help'] = "(default: %(default)s)"
@@ -40,7 +45,7 @@ def param_to_arg(param: inspect.Parameter) -> (tuple, dict):
             kwargs['default'] = param.default
     if param.annotation is not param.empty:
         kwargs['type'] = param.annotation
-    elif has_default and param.default is not None:
+    elif has_default and param.default is not None and infer_type:
         # assume type to be type of the default value if not explicit
         # (when default value is given)
         kwargs['type'] = type(param.default)
