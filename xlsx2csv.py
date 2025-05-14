@@ -20,7 +20,7 @@ def sliding_window(iterable, n):
         yield tuple(window)
 
 
-@clify.clify
+@clify.clify(infer_type=False)
 def main(filename, sheet=1, outfile=None, rows:int=None, filtersize=3):
     try:
         sheet = int(sheet)
