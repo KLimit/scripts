@@ -1,8 +1,11 @@
-#!/bin/sh
-tocheck=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
+#!/bin/bash
+# tocheck=$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
 errorcount=0
-IFS=$'\n' read -ra tocheck <<< "$tocheck"
-for toch in "${tocheck[@]}"
+# IFS=$'\n' read -ra tocheck <<< "$tocheck"
+# for toch in "${tocheck[@]}"
+# pwd
+# git diff --cached --name-only --diff-filter=ACM | grep '\.py$' \
+while read toch ;
 do
 	echo "$toch:"
 	# maybe there's a shebang saying it should be python3 syntax
@@ -18,8 +21,11 @@ do
 		echo "No flakes found in $toch"
 	else
 		echo "Fix your errors in $toch!"
-		errorcount=$(( $errorcount + 1 ))
+		# errorcount=$(( $errorcount + 1 ))
+		errorcount=$(expr $errorcount + 1)
 	fi
 	echo "---"
-done
+done <<EOF
+$(git diff --cached --name-only --diff-filter=ACM | grep '\.py$')
+EOF
 exit $errorcount
