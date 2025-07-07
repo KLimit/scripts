@@ -6,6 +6,10 @@ import inspect
 import sys
 
 
+# TODO: test whether this works when wrapped around a dataclass (or integrate
+# with dataclasses in some other way)
+
+
 def _clify(fn, /, *, infer_type=True, stdin_var=None, stdin_type=sys.stdin):
     def cliwrapped(argv=None):
         pser = ArgumentParser()
@@ -29,6 +33,7 @@ def _clify(fn, /, *, infer_type=True, stdin_var=None, stdin_type=sys.stdin):
     if fn.__module__ == '__main__':
         atexit.register(cliwrapped)
     return fn
+
 
 def clify(fn=None, /, *, infer_type=True):
     # copy pattern from dataclasses.py
@@ -56,6 +61,10 @@ def param_to_arg(param: inspect.Parameter, infer_type=True) -> (tuple, dict):
         kwargs['type'] = type(param.default)
     if param.kind == param.VAR_POSITIONAL:
         kwargs['nargs'] = '*'
+    # clean up 'action' and 'type' conflicts
+    # actions other than these cannot take a "type" kwarg
+    if kwargs.get('action', '') not in ['store', 'append', 'extend']:
+        kwargs.pop('type')
     # optional arg or not
     if (
         (param.kind == param.KEYWORD_ONLY)
