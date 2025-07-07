@@ -22,10 +22,7 @@ def diff(a, b, key=None):
         yield None, item
 
 
-@clify
-def main(a:Path, b: Path):
-    a = a.read_text().splitlines()
-    b = b.read_text().splitlines()
+def display(a, b):
     d = list(diff(a, b))
     longa, longb = [max(len(s) for s in sub if s) for sub in zip(*d)]
     symbol = '='
@@ -37,3 +34,10 @@ def main(a:Path, b: Path):
             symbol = '+'
             a = ''
         print(f'({symbol}) {a:>{longa}} -> {b:>{longb}}')
+
+
+@clify
+def main(a:Path, b: Path):
+    a = a.read_text().splitlines()
+    b = b.read_text().splitlines()
+    display(a, b)
