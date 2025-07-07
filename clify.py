@@ -63,7 +63,8 @@ def param_to_arg(param: inspect.Parameter, infer_type=True) -> (tuple, dict):
         kwargs['nargs'] = '*'
     # clean up 'action' and 'type' conflicts
     # actions other than these cannot take a "type" kwarg
-    if kwargs.get('action', '') not in ['store', 'append', 'extend']:
+    typeable_actions = ['store', 'append', 'extend']
+    if 'action' in kwargs and kwargs['action'] not in typeable_actions:
         kwargs.pop('type')
     # optional arg or not
     if (
