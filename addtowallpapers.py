@@ -70,8 +70,8 @@ class WallpaperWatcher:
         if self.verbose and is_candidate:
             verb = 'will link' if self.dry_run else 'linking'
             # WARN: the name aspect will only exist if the is_candidate bool
-            # doesn't short-circuit before the assignment; however, the name is
-            # used if the is_candidate bool never short-circuits
+            # doesn't short-circuit before the assignment; however, we only get
+            # here if the is_candidate bool doesn't short-circuit
             print(f'{verb} {path} ({aspect})')
         return is_candidate and link_path
 
