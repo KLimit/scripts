@@ -65,3 +65,39 @@ class ContextGroup:
         return tuple(cms.__enter__() for cms in self.cms)
     def __exit__(self, *args, **kwargs):
         return tuple(cms.__exit__(*args, **kwargs) for cms in self.cms)
+
+
+def save(fname, *objects, append=True):
+    import inspect
+    mode = 'w'
+    if append:
+        mode = 'a'
+    with open(fname, mode) as f:
+        def p(*args, **kwargs):
+            print(*args, **kwargs, file=f)
+        for obj in objects:
+            try:
+                p(inspect.getsource(obj))
+            except TypeError:
+                try:
+                    p(f'{obj} = {globals()[obj]!r}')
+                except KeyError:
+                    p(f'# {obj}')
+                except TypeError:
+                    import uuid
+                    u = uuid.uuid4()
+                    p(f'_{hex(u.fields[0])[2:]} = {obj!r}')
+
+def tab(seq):
+    seq = list(seq)
+    n = 1
+    col = os.get_terminal_size().columns
+    maketable = lambda n: tabulate.tabulate(more_itertools.grouper(seq, n))
+    while True:
+        table = maketable(n)
+        if len(table.splitlines()[0]) > col:
+            break
+        if n > len(seq):
+            break
+        n += 1
+    return maketable(n-1)
