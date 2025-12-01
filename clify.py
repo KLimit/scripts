@@ -35,11 +35,11 @@ def _clify(fn, /, *, infer_type=True, stdin_var=None, stdin_type=sys.stdin):
     return fn
 
 
-def clify(fn=None, /, *, infer_type=True):
+def clify(fn=None, /, *, infer_type=True, stdin_var=None, stdin_type=sys.stdin):
     # copy pattern from dataclasses.py
     if fn is None:
         # called with parens
-        return functools.partial(_clify, infer_type=infer_type)
+        return functools.partial(_clify, infer_type=infer_type, stdin_var=stdin_var, stdin_type=stdin_type)
     else:
         return _clify(fn)
 
