@@ -21,6 +21,8 @@ except ImportError:
 if sys.version_info.major != 2:
     from importlib import reload
 
+from gridify import grid
+
 
 def parallel(*rs):
     return 1/sum(1/r for r in rs)
