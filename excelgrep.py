@@ -11,7 +11,7 @@ import zipfile
 
 
 def excelgrep(filename, pattern, onlymatching, noheader, delimiter):
-    """Search through each row of the given Excel file (first workbook)."""
+    """Search through each row of the given Excel file (first worksheet)."""
     book = openpyxl.load_workbook(filename)
     sheet = book.active
     matches = 0
