@@ -10,6 +10,7 @@ import functools
 import logging
 import math
 from pathlib import Path
+import shutil
 import sys
 
 try:
@@ -93,7 +94,7 @@ def save(fname, *objects, append=True):
 def tab(seq):
     seq = list(seq)
     n = 1
-    col = os.get_terminal_size().columns
+    col = shutil.get_terminal_size().columns
     maketable = lambda n: tabulate.tabulate(more_itertools.grouper(seq, n))
     while True:
         table = maketable(n)
