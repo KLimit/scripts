@@ -2,7 +2,7 @@
 """Regex search through all excel files in a directory, recursive."""
 
 import argparse
-import pathlib
+import glob
 import re
 import sys
 
@@ -68,7 +68,7 @@ def main():
     pser.add_argument('--no-header', action='store_true')
     args = pser.parse_args()
     matches = 0
-    for path in sorted(pathlib.Path('.').rglob(args.filepattern)):
+    for path in sorted(glob.glob(args.filepattern)):
         try:
             sys.stderr.write(str(path) + '\n')
             matches = excelgrep(
