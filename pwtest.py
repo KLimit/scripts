@@ -24,3 +24,4 @@ if __name__ == '__main__':
     n = 0
     while True:
         print('correct' if test(target, prefix=f'{n} ') else 'wrong')
+        n += 1
